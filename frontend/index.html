@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Database AI</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family: Arial, sans-serif;
+
+            background: #f4f6f8;
+
+        }
+
+
+        .container {
+
+            width: 90%;
+
+            max-width: 1000px;
+
+            margin: 40px auto;
+
+            background: white;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 4px 20px
+                rgba(0, 0, 0, 0.1);
+
+            overflow: hidden;
+
+        }
+
+
+        /* ================= HEADER ================= */
+
+        .header {
+
+            padding: 20px;
+
+            background: #1f2937;
+
+            color: white;
+
+        }
+
+
+        .header h1 {
+
+            margin: 0;
+
+            font-size: 24px;
+
+        }
+
+
+        .header p {
+
+            margin: 6px 0 0;
+
+            color: #d1d5db;
+
+        }
+
+
+        /* ================= CHATBOT ================= */
+
+        .section-title {
+
+            padding: 20px 20px 10px;
+
+            margin: 0;
+
+            font-size: 20px;
+
+            color: #111827;
+
+        }
+
+
+        #chat {
+
+            height: 400px;
+
+            overflow-y: auto;
+
+            padding: 20px;
+
+        }
+
+
+        .message {
+
+            margin-bottom: 15px;
+
+            display: flex;
+
+        }
+
+
+        .user {
+
+            justify-content: flex-end;
+
+        }
+
+
+        .bot {
+
+            justify-content: flex-start;
+
+        }
+
+
+        .bubble {
+
+            max-width: 75%;
+
+            padding: 12px 16px;
+
+            border-radius: 12px;
+
+            line-height: 1.5;
+
+            white-space: pre-wrap;
+
+        }
+
+
+        .user .bubble {
+
+            background: #2563eb;
+
+            color: white;
+
+        }
+
+
+        .bot .bubble {
+
+            background: #e5e7eb;
+
+            color: #111827;
+
+        }
+
+
+        /* ================= CHAT INPUT ================= */
+
+        .input-area {
+
+            display: flex;
+
+            padding: 15px;
+
+            border-top: 1px solid #ddd;
+
+            gap: 10px;
+
+        }
+
+
+        #question {
+
+            flex: 1;
+
+            padding: 12px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+
+            outline: none;
+
+        }
+
+
+        #question:focus {
+
+            border-color: #2563eb;
+
+        }
+
+
+        #sendButton {
+
+            padding: 12px 20px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #2563eb;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 16px;
+
+        }
+
+
+        #sendButton:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        #sendButton:disabled {
+
+            background: #9ca3af;
+
+            cursor: not-allowed;
+
+        }
+
+
+        /* ================= DATABASE ================= */
+
+        .database-section {
+
+            padding: 20px;
+
+            border-top: 1px solid #ddd;
+
+        }
+
+
+        .database-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .database-header h2 {
+
+            margin: 0;
+
+            font-size: 20px;
+
+            color: #111827;
+
+        }
+
+
+        #refreshButton {
+
+            padding: 10px 16px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #10b981;
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        #refreshButton:hover {
+
+            background: #059669;
+
+        }
+
+
+        /* ================= ADD STUDENT ================= */
+
+        .add-student {
+
+            background: #f9fafb;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            padding: 20px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .add-student h3 {
+
+            margin-top: 0;
+
+            margin-bottom: 15px;
+
+            color: #111827;
+
+        }
+
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        .form-group label {
+
+            margin-bottom: 6px;
+
+            font-weight: bold;
+
+            color: #374151;
+
+        }
+
+
+        .form-group input {
+
+            padding: 11px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 7px;
+
+            font-size: 15px;
+
+            outline: none;
+
+        }
+
+
+        .form-group input:focus {
+
+            border-color: #2563eb;
+
+        }
+
+
+        #addStudentButton {
+
+            margin-top: 18px;
+
+            padding: 11px 20px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #2563eb;
+
+            color: white;
+
+            cursor: pointer;
+
+            font-size: 15px;
+
+        }
+
+
+        #addStudentButton:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        #addStudentButton:disabled {
+
+            background: #9ca3af;
+
+            cursor: not-allowed;
+
+        }
+
+
+        #formMessage {
+
+            margin-top: 12px;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+        }
+
+
+        .success {
+
+            color: #059669;
+
+        }
+
+
+        .form-error {
+
+            color: #dc2626;
+
+        }
+
+
+        /* ================= EDIT BOX ================= */
+
+        .edit-box {
+
+            display: none;
+
+            background: #eff6ff;
+
+            border: 1px solid #bfdbfe;
+
+            border-radius: 10px;
+
+            padding: 20px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .edit-box h3 {
+
+            margin-top: 0;
+
+            color: #1e3a8a;
+
+        }
+
+
+        .edit-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        .edit-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+        }
+
+
+        .edit-group label {
+
+            margin-bottom: 6px;
+
+            font-weight: bold;
+
+            color: #374151;
+
+        }
+
+
+        .edit-group input {
+
+            padding: 11px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 7px;
+
+            font-size: 15px;
+
+            outline: none;
+
+        }
+
+
+        .edit-group input:focus {
+
+            border-color: #2563eb;
+
+        }
+
+
+        .edit-buttons {
+
+            margin-top: 18px;
+
+            display: flex;
+
+            gap: 10px;
+
+        }
+
+
+        #saveEditButton {
+
+            padding: 10px 18px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #2563eb;
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        #saveEditButton:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        #saveEditButton:disabled {
+
+            background: #9ca3af;
+
+            cursor: not-allowed;
+
+        }
+
+
+        #cancelEditButton {
+
+            padding: 10px 18px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #6b7280;
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        #cancelEditButton:hover {
+
+            background: #4b5563;
+
+        }
+
+
+        #editMessage {
+
+            margin-top: 10px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+        }
+
+
+        th,
+        td {
+
+            padding: 12px;
+
+            text-align: left;
+
+            border-bottom: 1px solid #ddd;
+
+        }
+
+
+        th {
+
+            background: #f3f4f6;
+
+            color: #374151;
+
+        }
+
+
+        tr:hover {
+
+            background: #f9fafb;
+
+        }
+
+
+        .empty-message {
+
+            text-align: center;
+
+            padding: 20px;
+
+            color: #6b7280;
+
+        }
+
+
+        .error-message {
+
+            color: #dc2626;
+
+            padding: 15px;
+
+            text-align: center;
+
+        }
+
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .action-buttons {
+
+            display: flex;
+
+            gap: 6px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .edit-button {
+
+            padding: 7px 12px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            background: #f59e0b;
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        .edit-button:hover {
+
+            background: #d97706;
+
+        }
+
+
+        .delete-button {
+
+            padding: 7px 12px;
+
+            border: none;
+
+            border-radius: 6px;
+
+            background: #dc2626;
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        .delete-button:hover {
+
+            background: #b91c1c;
+
+        }
+
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 600px) {
+
+            .container {
+
+                width: 96%;
+
+                margin: 15px auto;
+
+            }
+
+
+            .bubble {
+
+                max-width: 90%;
+
+            }
+
+
+            .input-area {
+
+                flex-direction: column;
+
+            }
+
+
+            #sendButton {
+
+                width: 100%;
+
+            }
+
+
+            .form-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .edit-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            th,
+            td {
+
+                padding: 8px;
+
+                font-size: 14px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="header">
+
+        <h1>
+            Student Database AI
+        </h1>
+
+        <p>
+            Manage students and ask questions using AI.
+        </p>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CHATBOT
+    ====================================================== -->
+
+    <h2 class="section-title">
+
+        🤖 AI Student Assistant
+
+    </h2>
+
+
+    <div id="chat">
+
+
+        <div class="message bot">
+
+            <div class="bubble">
+
+                Hello! 👋
+                Ask me anything about the student database.
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- CHAT INPUT -->
+
+    <div class="input-area">
+
+
+        <input
+            type="text"
+            id="question"
+            placeholder="Ask something..."
+            autocomplete="off"
+        >
+
+
+        <button id="sendButton">
+
+            Send
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         STUDENT DATABASE
+    ====================================================== -->
+
+    <div class="database-section">
+
+
+        <div class="database-header">
+
+
+            <h2>
+
+                👨‍🎓 Student Database
+
+            </h2>
+
+
+            <button id="refreshButton">
+
+                Refresh
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             ADD STUDENT
+        ================================================== -->
+
+        <div class="add-student">
+
+
+            <h3>
+
+                ➕ Add New Student
+
+            </h3>
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label for="studentName">
+                        Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="studentName"
+                        placeholder="Enter name"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="studentEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="studentEmail"
+                        placeholder="Enter email"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="studentAge">
+                        Age
+                    </label>
+
+                    <input
+                        type="number"
+                        id="studentAge"
+                        placeholder="Enter age"
+                        min="1"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="studentCourse">
+                        Course
+                    </label>
+
+                    <input
+                        type="text"
+                        id="studentCourse"
+                        placeholder="e.g. BTech CSE"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="studentYear">
+                        Year
+                    </label>
+
+                    <input
+                        type="number"
+                        id="studentYear"
+                        placeholder="e.g. 3"
+                        min="1"
+                        max="4"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <button id="addStudentButton">
+
+                Add Student
+
+            </button>
+
+
+            <div id="formMessage"></div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             EDIT STUDENT
+        ================================================== -->
+
+        <div
+            class="edit-box"
+            id="editBox"
+        >
+
+
+            <h3>
+
+                ✏️ Edit Student
+
+            </h3>
+
+
+            <div class="edit-grid">
+
+
+                <div class="edit-group">
+
+                    <label for="editName">
+                        Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editName"
+                    >
+
+                </div>
+
+
+                <div class="edit-group">
+
+                    <label for="editEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="editEmail"
+                    >
+
+                </div>
+
+
+                <div class="edit-group">
+
+                    <label for="editAge">
+                        Age
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editAge"
+                        min="1"
+                    >
+
+                </div>
+
+
+                <div class="edit-group">
+
+                    <label for="editCourse">
+                        Course
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editCourse"
+                    >
+
+                </div>
+
+
+                <div class="edit-group">
+
+                    <label for="editYear">
+                        Year
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editYear"
+                        min="1"
+                        max="4"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="edit-buttons">
+
+
+                <button id="saveEditButton">
+
+                    Save Changes
+
+                </button>
+
+
+                <button id="cancelEditButton">
+
+                    Cancel
+
+                </button>
+
+
+            </div>
+
+
+            <div id="editMessage"></div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             STUDENT TABLE
+        ================================================== -->
+
+        <div class="table-container">
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Name</th>
+
+                        <th>Email</th>
+
+                        <th>Age</th>
+
+                        <th>Course</th>
+
+                        <th>Year</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="studentTableBody"
+                >
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="empty-message"
+                        >
+
+                            Loading students...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+    /* =====================================================
+       CHATBOT
+    ===================================================== */
+
+
+    const chat =
+        document.getElementById("chat");
+
+
+    const questionInput =
+        document.getElementById("question");
+
+
+    const sendButton =
+        document.getElementById("sendButton");
+
+
+
+    function addMessage(
+        message,
+        type
+    ) {
+
+
+        const messageDiv =
+            document.createElement("div");
+
+
+        messageDiv.className =
+            `message ${type}`;
+
+
+        const bubble =
+            document.createElement("div");
+
+
+        bubble.className =
+            "bubble";
+
+
+        bubble.textContent =
+            String(message);
+
+
+        messageDiv.appendChild(
+            bubble
+        );
+
+
+        chat.appendChild(
+            messageDiv
+        );
+
+
+        chat.scrollTop =
+            chat.scrollHeight;
+
+
+        return messageDiv;
+
+    }
+
+
+
+    async function sendQuestion() {
+
+
+        const question =
+            questionInput.value.trim();
+
+
+        if (!question) {
+
+            return;
+
+        }
+
+
+        addMessage(
+            question,
+            "user"
+        );
+
+
+        questionInput.value =
+            "";
+
+
+        sendButton.disabled =
+            true;
+
+
+        const thinkingMessage =
+            addMessage(
+                "Thinking...",
+                "bot"
+            );
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/chatbot/ask",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                question:
+                                    question
+
+                            })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            thinkingMessage.remove();
+
+
+            if (!response.ok) {
+
+                addMessage(
+                    "Server error. Please try again.",
+                    "bot"
+                );
+
+                console.error(
+                    "Server response:",
+                    data
+                );
+
+                return;
+
+            }
+
+
+            let answer;
+
+
+            if (
+                typeof data === "string"
+            ) {
+
+                answer =
+                    data;
+
+            }
+
+            else if (
+                data.answer !== undefined
+            ) {
+
+                answer =
+                    data.answer;
+
+            }
+
+            else {
+
+                answer =
+                    JSON.stringify(
+                        data
+                    );
+
+            }
+
+
+            addMessage(
+                answer,
+                "bot"
+            );
+
+
+        }
+
+        catch (error) {
+
+
+            thinkingMessage.remove();
+
+
+            addMessage(
+                "Could not connect to the server.",
+                "bot"
+            );
+
+
+            console.error(
+                "Chatbot error:",
+                error
+            );
+
+        }
+
+
+        sendButton.disabled =
+            false;
+
+
+        questionInput.focus();
+
+    }
+
+
+
+    sendButton.addEventListener(
+        "click",
+        sendQuestion
+    );
+
+
+
+    questionInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                sendQuestion();
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       STUDENT DATABASE
+    ===================================================== */
+
+
+    const studentTableBody =
+        document.getElementById(
+            "studentTableBody"
+        );
+
+
+    const refreshButton =
+        document.getElementById(
+            "refreshButton"
+        );
+
+
+
+    async function loadStudents() {
+
+
+        studentTableBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="7"
+                    class="empty-message"
+                >
+
+                    Loading students...
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/students/"
+                );
+
+
+            const students =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to load students"
+                );
+
+            }
+
+
+            if (
+                students.length === 0
+            ) {
+
+
+                studentTableBody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="empty-message"
+                        >
+
+                            No students found.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+
+                return;
+
+            }
+
+
+            studentTableBody.innerHTML =
+                "";
+
+
+            students.forEach(
+                function(student) {
+
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    row.innerHTML = `
+
+                        <td>
+                            ${student.id}
+                        </td>
+
+                        <td>
+                            ${student.name}
+                        </td>
+
+                        <td>
+                            ${student.email}
+                        </td>
+
+                        <td>
+                            ${student.age}
+                        </td>
+
+                        <td>
+                            ${student.course}
+                        </td>
+
+                        <td>
+                            ${student.year}
+                        </td>
+
+                        <td>
+
+                            <div
+                                class="action-buttons"
+                            >
+
+                                <button
+                                    class="edit-button"
+                                    onclick="openEditStudent(
+                                        ${student.id},
+                                        '${escapeQuotes(student.name)}',
+                                        '${escapeQuotes(student.email)}',
+                                        ${student.age},
+                                        '${escapeQuotes(student.course)}',
+                                        ${student.year}
+                                    )"
+                                >
+
+                                    ✏️ Edit
+
+                                </button>
+
+
+                                <button
+                                    class="delete-button"
+                                    onclick="deleteStudent(
+                                        ${student.id},
+                                        '${escapeQuotes(student.name)}'
+                                    )"
+                                >
+
+                                    🗑️ Delete
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    `;
+
+
+                    studentTableBody.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "Student loading error:",
+                error
+            );
+
+
+            studentTableBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="error-message"
+                    >
+
+                        Could not load students.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+    }
+
+
+
+    function escapeQuotes(value) {
+
+        return String(value)
+
+            .replace(
+                /\\/g,
+                "\\\\"
+            )
+
+            .replace(
+                /'/g,
+                "\\'"
+            );
+
+    }
+
+
+
+    refreshButton.addEventListener(
+        "click",
+        loadStudents
+    );
+
+
+
+    /* =====================================================
+       ADD STUDENT
+    ===================================================== */
+
+
+    const studentName =
+        document.getElementById(
+            "studentName"
+        );
+
+
+    const studentEmail =
+        document.getElementById(
+            "studentEmail"
+        );
+
+
+    const studentAge =
+        document.getElementById(
+            "studentAge"
+        );
+
+
+    const studentCourse =
+        document.getElementById(
+            "studentCourse"
+        );
+
+
+    const studentYear =
+        document.getElementById(
+            "studentYear"
+        );
+
+
+    const addStudentButton =
+        document.getElementById(
+            "addStudentButton"
+        );
+
+
+    const formMessage =
+        document.getElementById(
+            "formMessage"
+        );
+
+
+
+    async function addStudent() {
+
+
+        const name =
+            studentName.value.trim();
+
+
+        const email =
+            studentEmail.value.trim();
+
+
+        const age =
+            studentAge.value;
+
+
+        const course =
+            studentCourse.value.trim();
+
+
+        const year =
+            studentYear.value;
+
+
+        if (
+            !name ||
+            !email ||
+            !age ||
+            !course ||
+            !year
+        ) {
+
+            formMessage.textContent =
+                "Please fill all fields.";
+
+            formMessage.className =
+                "form-error";
+
+            return;
+
+        }
+
+
+        addStudentButton.disabled =
+            true;
+
+
+        addStudentButton.textContent =
+            "Adding...";
+
+
+        formMessage.textContent =
+            "";
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/students/",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                name: name,
+
+                                email: email,
+
+                                age: Number(age),
+
+                                course: course,
+
+                                year: Number(year)
+
+                            })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+
+                let errorMessage =
+                    "Could not add student.";
+
+
+                if (
+                    data.detail
+                ) {
+
+                    errorMessage =
+                        typeof data.detail === "string"
+                            ? data.detail
+                            : JSON.stringify(
+                                data.detail
+                            );
+
+                }
+
+
+                throw new Error(
+                    errorMessage
+                );
+
+            }
+
+
+            formMessage.textContent =
+                "Student added successfully!";
+
+
+            formMessage.className =
+                "success";
+
+
+            studentName.value =
+                "";
+
+            studentEmail.value =
+                "";
+
+            studentAge.value =
+                "";
+
+            studentCourse.value =
+                "";
+
+            studentYear.value =
+                "";
+
+
+            await loadStudents();
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "Add student error:",
+                error
+            );
+
+
+            formMessage.textContent =
+                error.message;
+
+
+            formMessage.className =
+                "form-error";
+
+        }
+
+
+        addStudentButton.disabled =
+            false;
+
+
+        addStudentButton.textContent =
+            "Add Student";
+
+    }
+
+
+
+    addStudentButton.addEventListener(
+        "click",
+        addStudent
+    );
+
+
+
+    /* =====================================================
+       EDIT STUDENT
+    ===================================================== */
+
+
+    const editBox =
+        document.getElementById(
+            "editBox"
+        );
+
+
+    const editName =
+        document.getElementById(
+            "editName"
+        );
+
+
+    const editEmail =
+        document.getElementById(
+            "editEmail"
+        );
+
+
+    const editAge =
+        document.getElementById(
+            "editAge"
+        );
+
+
+    const editCourse =
+        document.getElementById(
+            "editCourse"
+        );
+
+
+    const editYear =
+        document.getElementById(
+            "editYear"
+        );
+
+
+    const saveEditButton =
+        document.getElementById(
+            "saveEditButton"
+        );
+
+
+    const cancelEditButton =
+        document.getElementById(
+            "cancelEditButton"
+        );
+
+
+    const editMessage =
+        document.getElementById(
+            "editMessage"
+        );
+
+
+    let editingStudentId =
+        null;
+
+
+
+    function openEditStudent(
+        id,
+        name,
+        email,
+        age,
+        course,
+        year
+    ) {
+
+
+        editingStudentId =
+            id;
+
+
+        editName.value =
+            name;
+
+
+        editEmail.value =
+            email;
+
+
+        editAge.value =
+            age;
+
+
+        editCourse.value =
+            course;
+
+
+        editYear.value =
+            year;
+
+
+        editMessage.textContent =
+            "";
+
+
+        editMessage.className =
+            "";
+
+
+        editBox.style.display =
+            "block";
+
+
+        editBox.scrollIntoView({
+
+            behavior: "smooth",
+
+            block: "center"
+
+        });
+
+    }
+
+
+
+    cancelEditButton.addEventListener(
+        "click",
+        function() {
+
+
+            editBox.style.display =
+                "none";
+
+
+            editingStudentId =
+                null;
+
+
+            editMessage.textContent =
+                "";
+
+
+        }
+    );
+
+
+
+    saveEditButton.addEventListener(
+        "click",
+        async function() {
+
+
+            if (
+                editingStudentId === null
+            ) {
+
+                return;
+
+            }
+
+
+            const name =
+                editName.value.trim();
+
+
+            const email =
+                editEmail.value.trim();
+
+
+            const age =
+                editAge.value;
+
+
+            const course =
+                editCourse.value.trim();
+
+
+            const year =
+                editYear.value;
+
+
+            if (
+                !name ||
+                !email ||
+                !age ||
+                !course ||
+                !year
+            ) {
+
+                editMessage.textContent =
+                    "Please fill all fields.";
+
+                editMessage.className =
+                    "form-error";
+
+                return;
+
+            }
+
+
+            saveEditButton.disabled =
+                true;
+
+
+            saveEditButton.textContent =
+                "Saving...";
+
+
+            editMessage.textContent =
+                "";
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        `/students/${editingStudentId}`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    name: name,
+
+                                    email: email,
+
+                                    age: Number(age),
+
+                                    course: course,
+
+                                    year: Number(year)
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+
+                    let errorMessage =
+                        "Could not update student.";
+
+
+                    if (
+                        data.detail
+                    ) {
+
+                        errorMessage =
+                            typeof data.detail === "string"
+                                ? data.detail
+                                : JSON.stringify(
+                                    data.detail
+                                );
+
+                    }
+
+
+                    throw new Error(
+                        errorMessage
+                    );
+
+                }
+
+
+                editMessage.textContent =
+                    "Student updated successfully!";
+
+
+                editMessage.className =
+                    "success";
+
+
+                await loadStudents();
+
+
+                setTimeout(
+                    function() {
+
+
+                        editBox.style.display =
+                            "none";
+
+
+                        editingStudentId =
+                            null;
+
+
+                        editMessage.textContent =
+                            "";
+
+
+                    },
+                    1000
+                );
+
+
+            }
+
+            catch (error) {
+
+
+                console.error(
+                    "Edit student error:",
+                    error
+                );
+
+
+                editMessage.textContent =
+                    error.message;
+
+
+                editMessage.className =
+                    "form-error";
+
+            }
+
+
+            saveEditButton.disabled =
+                false;
+
+
+            saveEditButton.textContent =
+                "Save Changes";
+
+        }
+    );
+
+
+
+    /* =====================================================
+       DELETE STUDENT
+    ===================================================== */
+
+
+    async function deleteStudent(
+        studentId,
+        studentName
+    ) {
+
+
+        const confirmed =
+            confirm(
+                `Are you sure you want to delete ${studentName}?`
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    `/students/${studentId}`,
+                    {
+
+                        method: "DELETE"
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+
+                let errorMessage =
+                    "Could not delete student.";
+
+
+                if (
+                    data.detail
+                ) {
+
+                    errorMessage =
+                        typeof data.detail === "string"
+                            ? data.detail
+                            : JSON.stringify(
+                                data.detail
+                            );
+
+                }
+
+
+                throw new Error(
+                    errorMessage
+                );
+
+            }
+
+
+            alert(
+                "Student deleted successfully!"
+            );
+
+
+            await loadStudents();
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "Delete student error:",
+                error
+            );
+
+
+            alert(
+                "Could not delete student: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       INITIAL LOAD
+    ===================================================== */
+
+
+    loadStudents();
+
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+pydantic[email]
+python-dotenv
+google-genai
+langgraph
+langchain-google-genai
+qdrant-client[fastembed]
