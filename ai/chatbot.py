@@ -628,57 +628,91 @@ def find_student_name_in_question(
 # COURSE MATCHING HELPER
 # =========================================================
 
+def normalize_course_for_matching(course: str):
+
+    value = str(course or "").strip().casefold()
+
+    # Normalize punctuation/spacing so values such as:
+    # BTech CSE, BTech - CSE, B.Tech CSE and B.Tech - CSE
+    # can be compared consistently.
+    value = re.sub(r"\bb\.?tech\b", "btech", value)
+    value = re.sub(r"[^a-z0-9]+", " ", value).strip()
+
+    # For matching purposes, a BTech specialization and its bare
+    # specialization are treated as the same course. This makes
+    # the matching dynamic for future courses such as ECE, IT,
+    # AIML, ME, etc., instead of hard-coding individual courses.
+    if value.startswith("btech "):
+        value = value[6:].strip()
+
+    return value
+
+
 def course_matches_requested(
     actual_course: str,
     requested_course: str
 ):
 
-    actual = (
-        str(actual_course)
-        .strip()
-        .casefold()
+    actual = normalize_course_for_matching(
+        actual_course
     )
 
-    requested = (
-        str(requested_course)
-        .strip()
-        .casefold()
+    requested = normalize_course_for_matching(
+        requested_course
     )
 
-    # =====================================================
-    # BTECH BROAD CATEGORY
-    # =====================================================
-
-    if requested == "btech":
-
-        return actual.startswith(
-            "btech"
-        )
-
-    # =====================================================
-    # NORMAL EXACT COURSE MATCH
-    # =====================================================
-
-    # Treat BTech CSE and BTech - CSE as the same course.
-    # The database values are NOT changed; only the comparison
-    # is normalized so both spellings are merged for queries.
-    actual_btech_cse = re.fullmatch(
-        r"btech\s*[-–—]?\s*cse",
-        actual,
-        re.IGNORECASE
-    )
-
-    requested_btech_cse = re.fullmatch(
-        r"btech\s*[-–—]?\s*cse",
-        requested,
-        re.IGNORECASE
-    )
-
-    if actual_btech_cse and requested_btech_cse:
-
-        return True
+    # BTech means any BTech course.
+    if str(requested_course or "").strip().casefold() == "btech":
+        return str(actual_course or "").strip().casefold().startswith("btech")
 
     return actual == requested
+
+
+def find_course_in_question(
+    session: Session,
+    question: str
+):
+
+    q = question.casefold()
+
+    courses = session.exec(
+        select(Student.course)
+    ).all()
+
+    # Remove duplicates and empty values, then check the longest
+    # database course names first. This lets the database itself
+    # define which courses the chatbot can recognize.
+    unique_courses = list(dict.fromkeys(
+        str(course).strip()
+        for course in courses
+        if course and str(course).strip()
+    ))
+
+    unique_courses.sort(
+        key=lambda value: len(value),
+        reverse=True
+    )
+
+    for course in unique_courses:
+
+        normalized_course = normalize_course_for_matching(course)
+
+        if not normalized_course:
+            continue
+
+        # Direct normalized course phrase in the question.
+        if normalized_course in normalize_course_for_matching(q):
+            return course
+
+        # Also recognize a bare specialization such as "AIML"
+        # when the stored course is "BTech AIML".
+        if re.fullmatch(
+            rf".*\b{re.escape(normalized_course)}\b.*",
+            normalize_course_for_matching(q)
+        ):
+            return course
+
+    return ""
 
 
 # =========================================================
@@ -800,36 +834,27 @@ def understand_question(
     # question cannot be misclassified as a single-student lookup.
     # =====================================================
 
-    direct_course = ""
+    direct_course = find_course_in_question(
+        session,
+        question
+    )
 
-    if re.search(
-        r"\bbtech\s*[-–—]?\s*cse\b",
-        q,
-        re.IGNORECASE
+    if direct_course and (
+        re.search(r"\bname(?:s)?\b", q, re.IGNORECASE)
+        and re.search(r"\bstudents?\b", q, re.IGNORECASE)
+        and re.search(r"\b(?:in|from|studying)\b", q, re.IGNORECASE)
     ):
 
-        if re.search(
-            r"\bname(?:s)?\b",
-            q,
-            re.IGNORECASE
-        ) and re.search(
-            r"\bstudents?\b",
-            q,
-            re.IGNORECASE
-        ):
-
-            direct_course = "BTech CSE"
-
-            return {
-                "intent": "students_by_course",
-                "student_id": None,
-                "student_name": "",
-                "course": direct_course,
-                "year": None,
-                "age": None,
-                "comparison": "",
-                "fields": ["name"]
-            }
+        return {
+            "intent": "students_by_course",
+            "student_id": None,
+            "student_name": "",
+            "course": direct_course,
+            "year": None,
+            "age": None,
+            "comparison": "",
+            "fields": ["name"]
+        }
 
     # =====================================================
     # NAME + COURSE LIST
@@ -1034,25 +1059,10 @@ def understand_question(
     # DETERMINISTIC COURSE FILTERS
     # =====================================================
 
-    course = ""
-
-    hyphen_course_match = re.search(
-        r"\bbtech\s*[-–—]\s*cse\b",
-        q
+    course = find_course_in_question(
+        session,
+        question
     )
-
-    plain_course_match = re.search(
-        r"\bbtech\s+cse\b",
-        q
-    )
-
-    if hyphen_course_match:
-
-        course = "BTech - CSE"
-
-    elif plain_course_match:
-
-        course = "BTech CSE"
 
     if course and (
         "which students" in q
